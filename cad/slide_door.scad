@@ -92,9 +92,12 @@ SPLIT_X = 280;
 LAP     = 35;          // overlap length
 PIN_D   = 4.2;
 
+// Pins must sit INSIDE the overlap (SPLIT_X-LAP .. SPLIT_X), which is where
+// A's rebate and B's tongue actually meet. Offsets are measured from the
+// start of the overlap, not from the cut line.
 module lap_pins() {
   for (dx = [8, 17.5, 27])
-    translate([SPLIT_X + dx, PLATE_W/2, -1]) cylinder(d=PIN_D, h=T+2);
+    translate([SPLIT_X - LAP + dx, PLATE_W/2, -1]) cylinder(d=PIN_D, h=T+2);
 }
 
 // Tongue lives on B and reaches BACK into A, so A's footprint is exactly

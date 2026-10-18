@@ -92,16 +92,23 @@ SPLIT_X = 280;
 LAP     = 35;          // overlap length
 PIN_D   = 4.2;
 
-// Pins must sit INSIDE the overlap (SPLIT_X-LAP .. SPLIT_X), which is where
-// A's rebate and B's tongue actually meet. Offsets are measured from the
-// start of the overlap, not from the cut line.
-module lap_pins() {
-  for (dx = [8, 17.5, 27])
-    translate([SPLIT_X - LAP + dx, PLATE_W/2, -1]) cylinder(d=PIN_D, h=T+2);
+// Registration keys instead of pin holes. Two integral bosses on B's tongue
+// drop into matching pockets in A's rebate, so the halves self-align and stay
+// put with glue alone - no separate pins, nothing to source.
+KEY_L = 10; KEY_W = 5; KEY_H = 1.2; KEY_CLR = 0.25;
+
+module key_solid() {
+  for (dx = [10, 25])
+    translate([SPLIT_X - LAP + dx - KEY_L/2, PLATE_W/2 - KEY_W/2, T/2])
+      cube([KEY_L, KEY_W, KEY_H]);
+}
+module key_pocket() {
+  for (dx = [10, 25])
+    translate([SPLIT_X - LAP + dx - KEY_L/2 - KEY_CLR,
+               PLATE_W/2 - KEY_W/2 - KEY_CLR, T/2 - 0.01])
+      cube([KEY_L + 2*KEY_CLR, KEY_W + 2*KEY_CLR, KEY_H + KEY_CLR]);
 }
 
-// Tongue lives on B and reaches BACK into A, so A's footprint is exactly
-// SPLIT_X - nothing projects past the cut line.
 module base_A() {
   difference() {
     intersection() {
@@ -110,7 +117,7 @@ module base_A() {
     }
     // rebate in A's underside to receive B's tongue
     translate([SPLIT_X - LAP, -1, -0.1]) cube([LAP + 1, PLATE_W + 2, T/2 + 0.1]);
-    lap_pins();
+    key_pocket();
   }
 }
 
@@ -119,8 +126,8 @@ module base_B() {
     union() {
       translate([SPLIT_X, 0, 0]) cube([PLATE_L - SPLIT_X, PLATE_W, T]);
       translate([SPLIT_X - LAP, 0, 0]) cube([LAP, PLATE_W, T/2]);   // tongue
+      key_solid();
     }
-    lap_pins();
   }
 }
 

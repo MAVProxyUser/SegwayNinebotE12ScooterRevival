@@ -128,6 +128,7 @@ module base_B() {
       translate([SPLIT_X - LAP, 0, 0]) cube([LAP, PLATE_W, T/2]);   // tongue
       key_solid();
     }
+    mount_holes();     // <-- part B needs its fasteners too
   }
 }
 

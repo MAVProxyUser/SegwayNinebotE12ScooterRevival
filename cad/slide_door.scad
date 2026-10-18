@@ -84,5 +84,45 @@ module door() {
   }
 }
 
-PART = "base";    // "base" | "door"
-if (PART == "base") base(); else door();
+// ---- split for printers under 375 mm ------------------------------------
+// Split at x=290: rails (40-246) and opening (150-240) stay wholly in part A,
+// so nothing that must stay aligned crosses the joint. All three hole pairs
+// (15/135/255) are also in A. Part B is a plain extension.
+SPLIT_X = 280;
+LAP     = 35;          // overlap length
+PIN_D   = 4.2;
+
+module lap_pins() {
+  for (dx = [8, 17.5, 27])
+    translate([SPLIT_X + dx, PLATE_W/2, -1]) cylinder(d=PIN_D, h=T+2);
+}
+
+// Tongue lives on B and reaches BACK into A, so A's footprint is exactly
+// SPLIT_X - nothing projects past the cut line.
+module base_A() {
+  difference() {
+    intersection() {
+      base();
+      translate([-1, -1, -1]) cube([SPLIT_X + 1, PLATE_W + 2, 40]);
+    }
+    // rebate in A's underside to receive B's tongue
+    translate([SPLIT_X - LAP, -1, -0.1]) cube([LAP + 1, PLATE_W + 2, T/2 + 0.1]);
+    lap_pins();
+  }
+}
+
+module base_B() {
+  difference() {
+    union() {
+      translate([SPLIT_X, 0, 0]) cube([PLATE_L - SPLIT_X, PLATE_W, T]);
+      translate([SPLIT_X - LAP, 0, 0]) cube([LAP, PLATE_W, T/2]);   // tongue
+    }
+    lap_pins();
+  }
+}
+
+PART = "base";    // "base" | "door" | "baseA" | "baseB"
+if      (PART == "base")  base();
+else if (PART == "door")  door();
+else if (PART == "baseA") base_A();
+else if (PART == "baseB") base_B();

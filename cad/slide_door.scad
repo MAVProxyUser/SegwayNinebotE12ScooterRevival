@@ -17,13 +17,13 @@ T       = 3;
 
 PITCH   = 120;
 SPAN_W  = 90;
-FIRST_X = 15;
+FIRST_X = 7.5;
 HOLE_D  = 5.0;
-N_PAIRS = 3;
+N_PAIRS = 4;
 
 // --- access opening (between hole pairs 2 and 3: x=135 and x=255) ---
-OPEN_X0 = 150;
-OPEN_X1 = 240;          // 90 mm clear
+OPEN_X0 = 140;
+OPEN_X1 = 235;          // 90 mm clear
 OPEN_W  = 60;           // across the plate
 
 // --- slide hardware ---
@@ -40,7 +40,7 @@ TRAVEL    = DOOR_L + 6;                     // retract room
 RAIL_Y0 = PLATE_W/2 - DOOR_W/2;             // channel inner faces
 RAIL_Y1 = PLATE_W/2 + DOOR_W/2;
 RAIL_X0 = OPEN_X0 - TRAVEL;
-RAIL_X1 = OPEN_X1 + 6;
+RAIL_X1 = OPEN_X1 + 3;   // keep rails clear of the tongue at x=240
 
 module mount_holes() {
   for (i = [0 : N_PAIRS-1]) {
@@ -89,7 +89,9 @@ module door() {
 // so nothing that must stay aligned crosses the joint. All three hole pairs
 // (15/135/255) are also in A. Part B is a plain extension.
 SPLIT_X = 280;
-LAP     = 35;          // overlap length
+LAP     = 40;          // overlap. Deep enough that the x=247.5 fastener
+                       // falls fully INSIDE the tongue (245-250 within 240-280)
+                       // rather than tangent to its back face at x=245.
 PIN_D   = 4.2;
 
 // Registration keys instead of pin holes. Two integral bosses on B's tongue

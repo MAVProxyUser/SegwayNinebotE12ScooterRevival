@@ -1,34 +1,89 @@
-# Hole pattern gauge
+# CAD — E12 deck plate
 
-`hole_gauge.scad` / `hole_gauge.stl` — 150 × 134 × 3 mm, prints flat, no supports.
+Parametric OpenSCAD sources plus exported STLs. Regenerate any STL with:
 
-## Why a gauge and not a template
+```bash
+openscad -o cad/slide_baseA.stl -D 'PART="baseA"' cad/slide_door.scad
+```
 
-The reference photo (`IMG_4198.HEIC`) gives a usable scale — the ruler's ⅛″ ticks
-resolve at ~108 px/inch and perspective varies only ~4% across the frame — but the
-**holes themselves could not be located reliably**. They are dark features on a black,
-dusty plate; automated detection returned more false minima from surface texture than
-real holes, and the ruler sits in a different plane from the plate, adding parallax.
+## Deck plate geometry (as measured 2026-10-18/19)
 
-Best visual estimate was ~4 pairs at roughly 4.6″ (≈117 mm) pitch, with an honest
-uncertainty around ±0.2″ (±5 mm). That is too loose to drill to, so this part measures
-the pitch instead of assuming it.
+| | |
+|---|---|
+| Plate | **375 × 96 mm** (modelled 102 — see note) |
+| Hole pairs | **4** |
+| Longitudinal pitch | **120 mm** → holes at **7.5 / 127.5 / 247.5 / 367.5** |
+| Cross-plate spacing | **90 mm** |
 
-## Part A — pitch gauge
+4 pairs at 120 mm span 360 mm, leaving 7.5 mm at each end. That matches the
+reference photo, where hole-like features read at ~10, ~119, ~239 and ~371 mm.
 
-Five labelled rows of hole pairs: **110, 114, 118, 122, 126 mm**, bracketing the
-estimate in 4 mm steps. Lay the gauge on the plate and slide it until one row drops
-onto two adjacent holes. That row's number is the pitch.
+**Width note:** 90 mm spacing on a 96 mm plate puts hole centres 3 mm from the
+edge — under 1 mm of material around a 5 mm hole, which snaps in PLA. The models
+use `PLATE_W = 102` so test parts survive. Hole positions are unchanged; set
+`PLATE_W = 96` for the true outline.
 
-## Part B — diameter gauge
+---
 
-Six holes: **3.5, 4, 4.5, 5, 5.5, 6 mm**. Find the smallest that passes a fastener,
-or offer each to a plate hole to read its size.
+## `slide_door.scad` — sliding battery access door
 
-## Then what
+Three parts. Split at **x = 280** so the rails, the opening and three hole pairs
+stay wholly in part A; nothing that must stay aligned crosses the joint.
 
-With pitch and diameter known, the full pattern can be generated properly. The plate
-is approximately **14.8″ (376 mm)** long overall, with holes inset from both long
-edges and a stepped/castellated profile at one end.
+| STL | Size | Contents |
+|---|---|---|
+| `slide_baseA.stl` | 280 × 102 × 8 | rails, opening, fasteners 1–3 |
+| `slide_baseB.stl` | 135 × 102 × 3 | tongue, fastener 4 |
+| `slide_door.stl` | 109 × 65 × 5.4 | sliding panel + finger tab |
 
-Holes are 5.5 mm clearance so they slip over a bolt and you can sight through them.
+### Slide mechanism
+
+C-channel rails: a 4 mm wall standing 3 mm off the plate with a 3 mm lip
+overhanging inward. The 2.4 mm door runs in the 3.0 mm channel with 0.4 mm side
+clearance. Rails sit at y=18/84, **inboard of the fasteners at y=6/96**, so the
+plate can still be bolted down with the door fitted. An end stop prevents the
+door sliding out of the retracted end.
+
+### The joint
+
+35→**40 mm half-thickness lap**. Part B carries the tongue reaching *back* into
+part A, so A's footprint is exactly the split length rather than split+lap.
+
+Two integral **registration keys** (10 × 5 × 1.2 mm, 0.25 mm clearance) on the
+tongue drop into pockets in A's rebate — the halves self-align and hold with glue
+alone, no separate pins or hardware.
+
+Better still, **the x=247.5 fastener passes through the lap**, so a real bolt
+clamps both halves to the frame.
+
+> The lap is 40 mm and not 35 for a specific reason: at 35 the tongue began at
+> x=245 and the 5 mm hole at 247.5 spanned exactly 245.0–250.0, leaving the hole
+> wall tangent to the tongue's back face. Zero-thickness contact — the mesh came
+> out non-manifold. Rails were trimmed 3 mm to stay clear of the deeper tongue.
+
+### Printing
+
+All three parts print flat, no supports. Part B prints tongue-down with the
+registration keys facing up — check your slicer doesn't auto-flip it.
+
+---
+
+## `test_plate.scad` — plain hole-pattern test
+
+`test_plate.stl`, 375 × 102 × 3, hole pattern only, no mechanism. For checking
+the pattern against the scooter before committing to the full assembly.
+
+## `hole_gauge.scad` — measuring gauge
+
+`hole_gauge.stl`, 150 × 134 × 3. Built when the hole pitch was still unknown:
+five labelled hole pairs (110–126 mm) and a 3.5–6 mm diameter gauge. Superseded
+by the measured 120 mm pitch, kept because it is a useful general tool.
+
+---
+
+## Open
+
+- **Opening is 95 × 60 mm** in the middle bay. A 6S 2200 LiPo is typically
+  ~135 mm long, so it likely will not lift out vertically. Moving the opening or
+  spanning a bay boundary are one-line changes — needs the pack's L × W × H.
+- **Hole diameter is assumed 5.0 mm.** Not measured.
